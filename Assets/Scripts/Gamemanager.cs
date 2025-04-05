@@ -13,6 +13,8 @@ public class Gamemanager : MonoBehaviour
     public GameObject gameOverWindow;
     public TMP_Text endScore;
     public TMP_Text highScore;
+    AudioSource[] sounds;
+
     public static int Score = 0;
 
     private float startY = 3.75f;
@@ -21,20 +23,25 @@ public class Gamemanager : MonoBehaviour
     private GameObject chosenFruit;
     private float pointX;
     private string chosenName;
+    private float timer = 0;
     private string[] names = { "Blueberry", "Strawberry", "Apple", "Grape","Orange","Kiwi","Coconut","Watermelon"};
     // Start is called before the first frame update
     void Start()
     {
         GenerateNewFruit();
+        sounds = GetComponents<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(canGenerate && Input.GetMouseButtonDown(0))
+        if(canGenerate && timer > 0.5f && Input.GetMouseButtonDown(0))
         {
+            timer = 0;
             pointX = Mathf.Clamp(Camera.main.ScreenToWorldPoint(Input.mousePosition).x,-2.5f,2.5f);
             movingTowardsPoint = true;
+            canGenerate = false;
+            sounds[2].Play();
         }
         if(movingTowardsPoint)
         {
@@ -45,13 +52,17 @@ public class Gamemanager : MonoBehaviour
                 if(chosenFruit.transform.position.x == pointX)
                 {
                     movingTowardsPoint = false;
+                    if (!gameOverWindow.activeSelf) canGenerate = true;
+                    canGenerate = true;
                     chosenFruit.GetComponent<Rigidbody2D>().gravityScale = 1;
                     chosenFruit.GetComponent<CircleCollider2D>().enabled = true;
+                    sounds[1].Play();
                     GenerateNewFruit();
                 }
             }
         }
         scoreText.text = Score.ToString();
+        timer += Time.deltaTime;
     }
     void GenerateNewFruit()
     {
@@ -72,6 +83,8 @@ public class Gamemanager : MonoBehaviour
         fruit.GetComponent<CircleCollider2D>().enabled = true;
         fruit.GetComponent<Fruit>().game = this;
         Score += (int)Mathf.Pow(2,System.Array.IndexOf(names,name));
+        sounds[0].Play();
+
     }
     public void GameOver()
     {
@@ -80,9 +93,11 @@ public class Gamemanager : MonoBehaviour
         endScore.text = Score.ToString();
         if (Score > PlayerPrefs.GetInt("HighScore", 0)) PlayerPrefs.SetInt("HighScore",Score);
         highScore.text = "HIGHSCORE:\n"+PlayerPrefs.GetInt("HighScore", 0).ToString();
+        sounds[3].Play();
     }
     public void Restart()
     {
+        Score = 0;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

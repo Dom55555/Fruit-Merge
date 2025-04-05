@@ -6,8 +6,7 @@ public class LimitLine : MonoBehaviour
 {
     public Gamemanager game;
 
-    private float timer = 0;
-    private bool activated = false;
+    private Dictionary<GameObject, float> fruits = new Dictionary<GameObject, float>();
     // Start is called before the first frame update
     void Start()
     {
@@ -17,16 +16,23 @@ public class LimitLine : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(activated) timer += Time.deltaTime;
-        if(timer>=1) game.GameOver();
+        List<GameObject> keys = new List<GameObject>(fruits.Keys); 
+        foreach (GameObject key in keys)
+        {
+            fruits[key] += Time.deltaTime;
+            if (fruits[key]>=2)
+            {
+                game.GameOver();
+                enabled = false;
+            }
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        timer = 0;
-        activated = true;
+        fruits.Add(collision.gameObject,0);
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        activated = false;
+        fruits.Remove(collision.gameObject);
     }
 }
