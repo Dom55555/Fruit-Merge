@@ -53,7 +53,6 @@ public class Gamemanager : MonoBehaviour
                 {
                     movingTowardsPoint = false;
                     if (!gameOverWindow.activeSelf) canGenerate = true;
-                    canGenerate = true;
                     chosenFruit.GetComponent<Rigidbody2D>().gravityScale = 1;
                     chosenFruit.GetComponent<CircleCollider2D>().enabled = true;
                     sounds[1].Play();
